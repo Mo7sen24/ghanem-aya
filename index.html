@@ -412,7 +412,7 @@ addEventListener('resize',build);addEventListener('load',build);
 if(document.fonts)document.fonts.ready.then(build);
 build();setTimeout(build,800);
 /* رابط Google Apps Script (ينتهي بـ /exec) - الصقه بين علامتي التنصيص */
-const SHEET_URL='https://script.google.com/macros/s/AKfycbxOvIFm22zUyTtqR--egbJ-rmCBD3w7A7QiYlXk7pLd1hicPcfWi6WQ6A6w0gF1ncnR/exec';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbwHPZ-3InF9KRyqa5cizCBSd1Sx_QCv9J2iZqHBZCl3wdSCviTtp1q9YeHDHs59wr4/exec';
 document.getElementById('rsvpForm').addEventListener('submit',e=>{
  e.preventDefault();
  const nm=document.getElementById('gName'),ms=document.getElementById('gMsg'),hp=document.getElementById('gWeb'),st=document.getElementById('fstatus'),bt=document.getElementById('btn');
@@ -424,9 +424,10 @@ document.getElementById('rsvpForm').addEventListener('submit',e=>{
  bt.disabled=true;bt.textContent='جاري الإرسال...';st.textContent='';
  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),20000);
  const body=new URLSearchParams({name:name,message:msg,hp_check:hp.value});
- fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:body,signal:ctl.signal})
- .then(()=>{clearTimeout(tm);bt.textContent='تم الإرسال ✓';bt.classList.add('ok');nm.value='';ms.value='';st.textContent='وصلتنا رسالتك، شكراً لك ❤';build()})
- .catch(()=>{clearTimeout(tm);bt.disabled=false;bt.textContent='إرسال';st.textContent='تعذّر الإرسال، تأكد من الإنترنت وحاول مرة أخرى.';build()})});
+ fetch(SHEET_URL,{method:'POST',body:body,signal:ctl.signal})
+ .then(r=>r.text())
+ .then(t=>{clearTimeout(tm);if(t.trim().indexOf('ok')!==0)throw new Error(t);bt.textContent='تم الإرسال ✓';bt.classList.add('ok');nm.value='';ms.value='';st.textContent='وصلتنا رسالتك، شكراً لك ❤';build()})
+ .catch(err=>{clearTimeout(tm);console.error('RSVP send failed:',err);bt.disabled=false;bt.textContent='إرسال';st.textContent='تعذّر الإرسال، حاول مرة أخرى.';build()})});
 </script>
 </body>
 </html>
